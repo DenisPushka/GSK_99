@@ -1,0 +1,10 @@
+C:\Users\User\source\repos\GSK_99\GSK_99\bin\Debug\GSK_99.exe.config
+C:\Users\User\source\repos\GSK_99\GSK_99\bin\Debug\GSK_99.exe
+C:\Users\User\source\repos\GSK_99\GSK_99\bin\Debug\GSK_99.pdb
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.csproj.AssemblyReference.cache
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.Form1.resources
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.Properties.Resources.resources
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.csproj.GenerateResource.cache
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.exe
+C:\Users\User\source\repos\GSK_99\GSK_99\obj\Debug\GSK_99.pdb
