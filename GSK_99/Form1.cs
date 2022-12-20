@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GSK_99
@@ -19,7 +15,7 @@ namespace GSK_99
         /// <summary>
         /// Множество для ТМО
         /// </summary>
-        private int[] setQ = new int[2];
+        private int[] _setQ = new int[2];
 
         /// <summary>
         ///  Список фигур
@@ -60,6 +56,24 @@ namespace GSK_99
             _pictureBoxMousePosition = e.Location;
             switch (_operation)
             {
+                // Удаление
+                case -3:
+                    if (SearchSelectFigure(e))
+                    {
+                        _figureForMove.DrawPen.Color = Color.White;
+                        _figureForMove.Fill();
+                        if (_figures.Any(figure => figure == _figureForMove))
+                        {
+                            _figures.Remove(_figure);
+                            pictureBoxMain.Image = _bitmap;
+                            return;
+                        }
+
+                        _figure = null;
+                    }
+                    else
+                        _checkFigure = false;
+                    break;
                 // Рисование
                 // Рисование примитива
                 case -2:
@@ -79,6 +93,7 @@ namespace GSK_99
                     else
                         CreateStr3(e);
 
+                    _figure.DrawPen = _drawPen;
                     _figure.Fill();
                     _figures.Add(_figure.Cloning());
                     _figure = new Figure(pictureBoxMain.Width, pictureBoxMain.Height, _graphics,
@@ -93,6 +108,7 @@ namespace GSK_99
                 // Создание фигуры
                 case -1 when e.Button == MouseButtons.Right:
                 {
+                    _figure.DrawPen = _drawPen;
                     _figure.Fill();
                     _figures.Add(_figure.Cloning());
                     _figure = new Figure(pictureBoxMain.Width, pictureBoxMain.Height, _graphics,
@@ -137,16 +153,24 @@ namespace GSK_99
         private void GeometricTransformation(object sender, MouseEventArgs e)
         {
             var figureBuff = _figures[_figures.Count - 1];
-            // if (figureBuff.IsHaveTmo)
-            // {
-            //     OperationGeometric(figureBuff, e);
-            //     OperationGeometric(_figures[_figures.Count - 2], e);
-            //     _graphics.Clear(Color.White);
-            //     Tmo();
-            //     pictureBoxMain.Image = _bitmap;
-            // }
-            // else
-            OperationGeometric(figureBuff, e);
+            if (figureBuff.IsHaveTmo)
+            {
+                OperationGeometric(figureBuff, e);
+                OperationGeometric(_figures[_figures.Count - 2], e);
+                var fig1 = _figures[_figures.Count - 2];
+                var colorBuff1 = fig1.DrawPen.Color;
+                var colorBuff2 = figureBuff.DrawPen.Color;
+                fig1.DrawPen.Color = Color.White;
+                figureBuff.DrawPen.Color = Color.White;
+                fig1.Fill();
+                figureBuff.Fill();
+                fig1.DrawPen.Color = colorBuff1;
+                figureBuff.DrawPen.Color = colorBuff2;
+                Tmo(figureBuff, _figures[_figures.Count - 2]);
+                pictureBoxMain.Image = _bitmap;
+            }
+            else
+                OperationGeometric(figureBuff, e);
         }
 
         private void OperationGeometric(Figure figureBuff, MouseEventArgs e)
@@ -274,8 +298,7 @@ namespace GSK_99
 
             const double dt = 0.04;
             double t = 0;
-            double xt, yt;
-            Point ppred = _figure.Vertices[0].ToPoint(), pt = _figure.Vertices[0].ToPoint();
+            Point pred = _figure.Vertices[0].ToPoint(), pt = _figure.Vertices[0].ToPoint();
 
             pv1.X = (int) (4 * (_figure.Vertices[1].X - _figure.Vertices[0].X));
             pv1.Y = (int) (4 * (_figure.Vertices[1].Y - _figure.Vertices[0].Y));
@@ -290,18 +313,18 @@ namespace GSK_99
             l[2].Y = pv1.Y; // Cy
             l[3].X = _figure.Vertices[0].X; // Dx 
             l[3].Y = _figure.Vertices[0].Y; // Dy 
-            function.Add(new Vertex(ppred.X, ppred.Y));
+            function.Add(new Vertex(pred.X, pred.Y));
             while (t < 1 + dt / 2)
             {
-                xt = ((l[0].X * t + l[1].X) * t + l[2].X) * t + l[3].X;
-                yt = ((l[0].Y * t + l[1].Y) * t + l[2].Y) * t + l[3].Y;
+                var xt = ((l[0].X * t + l[1].X) * t + l[2].X) * t + l[3].X;
+                var yt = ((l[0].Y * t + l[1].Y) * t + l[2].Y) * t + l[3].Y;
 
                 pt.X = (int) Math.Round(xt);
                 pt.Y = (int) Math.Round(yt);
 
-                _graphics.DrawLine(_drawPen, ppred, pt);
-                ppred = pt;
-                function.Add(new Vertex(ppred.X, ppred.Y));
+                _graphics.DrawLine(_drawPen, pred, pt);
+                pred = pt;
+                function.Add(new Vertex(pred.X, pred.Y));
                 t += dt;
             }
 
@@ -332,13 +355,13 @@ namespace GSK_99
 
             var fg4 = new List<Vertex>
             {
-                new Vertex(a.X + width / 3, a.Y),
+                new Vertex(a.X + width / 4, a.Y),
                 new Vertex(a.X, b.Y),
-                new Vertex(a.X + width / 3, b.Y),
+                new Vertex(a.X + width / 4, b.Y),
                 new Vertex(width, b.Y + 2 * height / 3),
-                new Vertex(b.X - width / 3, b.Y),
+                new Vertex(b.X - width / 4, b.Y),
                 new Vertex(b.X, b.Y),
-                new Vertex(b.X - width / 3, a.Y)
+                new Vertex(b.X - width / 4, a.Y)
             };
             _figure.Vertices = fg4;
         }
@@ -354,9 +377,142 @@ namespace GSK_99
             _operation = -1;
         }
 
-        private void DeleteFigure__Click(object sender, EventArgs e)
+        private void DeleteFigure__Click(object sender, EventArgs e) => _operation = -3;
+
+        // Алгоритм теоретико-множественных операций
+        private void Tmo(Figure figure1, Figure figure2)
         {
-            throw new System.NotImplementedException();
+            var arr = figure1.SearchYMinAndMax();
+            var arr2 = figure2.SearchYMinAndMax();
+            figure1.IsHaveTmo = true;
+            figure2.IsHaveTmo = true;
+            var minY = arr[0] < arr2[0] ? arr[0] : arr2[0];
+            var maxY = arr[1] > arr2[1] ? arr[1] : arr2[1];
+            for (var y = (int) minY; y < maxY; y++)
+            {
+                var a = figure1.CalculationListXrAndXl(y);
+                var xAl = a[0];
+                var xAr = a[1];
+                var b = figure2.CalculationListXrAndXl(y);
+                var xBl = b[0];
+                var xBr = b[1];
+                if (xAl.Count == 0 && xBl.Count == 0)
+                    continue;
+
+                #region Заполнение массива arrayM
+
+                var arrayM = new M[xAl.Count * 2 + xBl.Count * 2];
+                for (var i = 0; i < xAl.Count; i++)
+                    arrayM[i] = new M(xAl[i], 2);
+
+                var nM = xAl.Count;
+                for (var i = 0; i < xAr.Count; i++)
+                    arrayM[nM + i] = new M(xAr[i], -2);
+
+                nM += xAr.Count;
+                for (var i = 0; i < xBl.Count; i++)
+                    arrayM[nM + i] = new M(xBl[i], 1);
+
+                nM += xBl.Count;
+                for (var i = 0; i < xBr.Count; i++)
+                    arrayM[nM + i] = new M(xBr[i], -1);
+                nM += xBr.Count;
+
+                #endregion
+
+                // Сортировка
+                SortArrayM(arrayM);
+
+                var q = 0;
+                var xrl = new List<int>();
+                var xrr = new List<int>();
+                // Особый случай для правой границы сегмента
+                if (arrayM[0].X >= 0 && arrayM[0].Dq < 0)
+                {
+                    xrl.Add(0);
+                    q = -arrayM[1].Dq;
+                }
+
+                for (var i = 0; i < nM; i++)
+                {
+                    var x = arrayM[i].X;
+                    var qNew = q + arrayM[i].Dq;
+                    if (!IncludeQInSetQ(q) && IncludeQInSetQ(qNew))
+                        xrl.Add((int) x);
+                    else if (IncludeQInSetQ(q) && !IncludeQInSetQ(qNew))
+                        xrr.Add((int) x);
+
+                    q = qNew;
+                }
+
+                // Если не найдена правая граница последнего сегмента
+                if (IncludeQInSetQ(q))
+                    xrr.Add(pictureBoxMain.Height);
+
+                for (var i = 0; i < xrr.Count; i++)
+                    _graphics.DrawLine(_drawPen, new Point(xrr[i], y), new Point(xrl[i], y));
+            }
+        }
+
+        // Проверка вхождения Q в множество setQ
+        private bool IncludeQInSetQ(int q) => _setQ[0] <= q && q <= _setQ[1];
+
+        /// <summary>
+        ///  Сортировка по Х
+        /// </summary>
+        private static void SortArrayM(IList<M> arrayM)
+        {
+            for (var write = 0; write < arrayM.Count; write++)
+            for (var sort = 0; sort < arrayM.Count - 1; sort++)
+                if (arrayM[sort].X > arrayM[sort + 1].X)
+                {
+                    var buff = new M(arrayM[sort + 1].X, arrayM[sort + 1].Dq);
+                    arrayM[sort + 1] = arrayM[sort];
+                    arrayM[sort] = buff;
+                }
+        }
+
+        private void ButtonForTMO__Click(object sender, EventArgs e)
+        {
+            if (_figures.Count > 1)
+            {
+                var fig1 = _figures[_figures.Count - 2];
+                var fig2 = _figures[_figures.Count - 1];
+                var colorBuff1 = fig1.DrawPen.Color;
+                var colorBuff2 = fig2.DrawPen.Color;
+                fig1.DrawPen.Color = Color.White;
+                fig2.DrawPen.Color = Color.White;
+                fig1.Fill();
+                fig2.Fill();
+                fig1.DrawPen.Color = colorBuff1;
+                fig2.DrawPen.Color = colorBuff2;
+                Tmo(fig1, fig2);
+            }
+
+            pictureBoxMain.Image = _bitmap;
+        }
+
+        // Выбор ТМО
+        private void SelectTMOComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            switch (SelectTMOComboBox.SelectedIndex)
+            {
+                case 0:
+                    _setQ = new[] {1, 3}; // Объединение
+                    break;
+                case 1:
+                    _setQ = new[] {3, 3}; // Пересечение
+                    break;
+                case 2:
+                    _setQ = new[] {1, 2}; // Симметричная разность
+                    break;
+                case 3:
+                    _setQ = new[] {2, 2}; // Разность А/В
+                    break;
+                case 4:
+                    _setQ = new[] {1, 1}; // Разность В/А
+                    break;
+            }
         }
     }
 }

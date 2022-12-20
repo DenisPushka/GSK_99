@@ -40,6 +40,7 @@ namespace GSK_99
             this.ButtonClear_ = new System.Windows.Forms.Button();
             this.DeleteFigure_ = new System.Windows.Forms.Button();
             this.Angle = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize) (this.pictureBoxMain)).BeginInit();
             this.SuspendLayout();
             // 
@@ -98,6 +99,7 @@ namespace GSK_99
             this.SelectTMOComboBox.Size = new System.Drawing.Size(148, 21);
             this.SelectTMOComboBox.TabIndex = 3;
             this.SelectTMOComboBox.Text = "ТМО";
+            this.SelectTMOComboBox.SelectedIndexChanged += new System.EventHandler(this.SelectTMOComboBox_SelectedIndexChanged);
             // 
             // ButtonForTMO_
             // 
@@ -107,6 +109,7 @@ namespace GSK_99
             this.ButtonForTMO_.TabIndex = 4;
             this.ButtonForTMO_.Text = "Применить выбранное ТМО\r\n";
             this.ButtonForTMO_.UseVisualStyleBackColor = true;
+            this.ButtonForTMO_.Click += new System.EventHandler(this.ButtonForTMO__Click);
             // 
             // GTComboBox
             // 
@@ -151,10 +154,19 @@ namespace GSK_99
             // 
             // Angle
             // 
-            this.Angle.Location = new System.Drawing.Point(122, 383);
+            this.Angle.Location = new System.Drawing.Point(150, 386);
             this.Angle.Name = "Angle";
             this.Angle.Size = new System.Drawing.Size(100, 20);
             this.Angle.TabIndex = 9;
+            // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(44, 386);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(100, 20);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "Угол поворота фигуры";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
@@ -162,6 +174,7 @@ namespace GSK_99
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.MintCream;
             this.ClientSize = new System.Drawing.Size(800, 440);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.Angle);
             this.Controls.Add(this.DeleteFigure_);
             this.Controls.Add(this.ButtonClear_);
@@ -179,6 +192,8 @@ namespace GSK_99
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.Label label1;
 
         private System.Windows.Forms.TextBox Angle;
 

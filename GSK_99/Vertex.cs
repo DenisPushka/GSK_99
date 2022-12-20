@@ -6,7 +6,7 @@ namespace GSK_99
     {
         public float X;
         public float Y;
-        public float Thirst;
+        public readonly float Thirst;
 
         public Vertex(float x = 0.0f, float y = 0.0f, float thirst = 1.0f) {
             X = x;

@@ -18,9 +18,9 @@ namespace GSK_99
         public int Index { get; set; } = -1;
 
         private Graphics Graphics { get; }
-        private Pen DrawPen { get; }
-        private int _width;
-        private int _height;
+        public Pen DrawPen { get; set; }
+        private readonly int _width;
+        private readonly int _height;
 
         public Figure(int width, int height, Graphics graphics, Pen drawPen)
         {
@@ -165,7 +165,7 @@ namespace GSK_99
         }
 
         // Поиск мин/макс Y
-        private float[] SearchYMinAndMax()
+        public float[] SearchYMinAndMax()
         {
             if (Vertices.Count == 0)
                 return new float[] {0, 0, 0};
