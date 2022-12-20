@@ -21,6 +21,28 @@ namespace GSK_99
         public Pen DrawPen { get; set; }
         private readonly int _width;
         private readonly int _height;
+        
+        // public override bool Equals(object obj)
+        // {
+        //     var figs = (List<Vertex>) obj;
+        //     return Vertices
+        //         .Any(vertex => figs
+        //             .Any(ver => vertex.X == ver.X && vertex.Y == ver.Y));
+        // }
+
+        public bool Equals(Figure other) => 
+            Equals(Vertices, other.Vertices) && IsFunction == other.IsFunction && IsHaveTmo == other.IsHaveTmo;
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Vertices != null ? Vertices.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsFunction.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsHaveTmo.GetHashCode();
+                return hashCode;
+            }
+        }
 
         public Figure(int width, int height, Graphics graphics, Pen drawPen)
         {
@@ -40,9 +62,10 @@ namespace GSK_99
             DrawPen = drawPen;
         }
 
-        public void AddPoint(float x, float y)
+        public void AddVertex(float x, float y)
         {
             Vertices.Add(new Vertex(x, y));
+            Graphics.DrawEllipse(new Pen(Color.Blue), x - 2, y - 2, 10, 10);
             if (Vertices.Count > 1)
                 Graphics.DrawLine(DrawPen, Vertices[Vertices.Count - 2].ToPoint(),
                     Vertices[Vertices.Count - 1].ToPoint());
@@ -218,7 +241,8 @@ namespace GSK_99
             }
 
             DrawPen.Color = bufferDr;
-            Fill();
+            if (!IsHaveTmo) 
+                Fill();
         }
 
         private Color FillBeginGeometricTransformation()

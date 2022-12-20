@@ -73,6 +73,7 @@ namespace GSK_99
                     }
                     else
                         _checkFigure = false;
+
                     break;
                 // Рисование
                 // Рисование примитива
@@ -82,11 +83,11 @@ namespace GSK_99
                     {
                         if (_figure.Vertices.Count < 1)
                         {
-                            _figure.AddPoint(e.X, e.Y);
-                            return;
+                            _figure.AddVertex(e.X, e.Y);
+                            break;
                         }
 
-                        if (_figure.Vertices.Count == 1) _figure.AddPoint(e.X, e.Y);
+                        if (_figure.Vertices.Count == 1) _figure.AddVertex(e.X, e.Y);
                         if (_figure.Vertices.Count == 2) CreateFg4();
                     }
                     // Создание стрелки3
@@ -102,7 +103,7 @@ namespace GSK_99
                 // Добавление точки
                 case -1 when e.Button == MouseButtons.Left:
                 {
-                    _figure.AddPoint(e.X, e.Y);
+                    _figure.AddVertex(e.X, e.Y);
                     break;
                 }
                 // Создание фигуры
@@ -142,6 +143,18 @@ namespace GSK_99
 
                 _figureForMove.Move(e.X - _pictureBoxMousePosition.X, e.Y - _pictureBoxMousePosition.Y);
 
+                if (_figureForMove.IsHaveTmo)
+                {
+                    _figures[_figures.Count - 1]
+                        .Move(e.X - _pictureBoxMousePosition.X, e.Y - _pictureBoxMousePosition.Y);
+
+                    // PaintTmo(_figureForMove, _figures[_figures.Count - 1]);
+                    Tmo(_figureForMove, _figures[_figures.Count - 1]);
+
+                    if (figuresB.Contains(_figures[_figures.Count - 1]))
+                        figuresB.Remove(_figures[_figures.Count - 1]);
+                }
+
                 foreach (var figure in figuresB)
                     figure.Fill();
 
@@ -157,20 +170,24 @@ namespace GSK_99
             {
                 OperationGeometric(figureBuff, e);
                 OperationGeometric(_figures[_figures.Count - 2], e);
-                var fig1 = _figures[_figures.Count - 2];
-                var colorBuff1 = fig1.DrawPen.Color;
-                var colorBuff2 = figureBuff.DrawPen.Color;
-                fig1.DrawPen.Color = Color.White;
-                figureBuff.DrawPen.Color = Color.White;
-                fig1.Fill();
-                figureBuff.Fill();
-                fig1.DrawPen.Color = colorBuff1;
-                figureBuff.DrawPen.Color = colorBuff2;
-                Tmo(figureBuff, _figures[_figures.Count - 2]);
-                pictureBoxMain.Image = _bitmap;
+                PaintTmo(figureBuff, _figures[_figures.Count - 2]);
             }
             else
                 OperationGeometric(figureBuff, e);
+        }
+
+        private void PaintTmo(Figure figureBuff, Figure figure2)
+        {
+            var colorBuff1 = figure2.DrawPen.Color;
+            var colorBuff2 = figureBuff.DrawPen.Color;
+            figure2.DrawPen.Color = Color.White;
+            figureBuff.DrawPen.Color = Color.White;
+            figure2.Fill();
+            figureBuff.Fill();
+            figure2.DrawPen.Color = colorBuff1;
+            figureBuff.DrawPen.Color = colorBuff2;
+            Tmo(figureBuff, _figures[_figures.Count - 2]);
+            pictureBoxMain.Image = _bitmap;
         }
 
         private void OperationGeometric(Figure figureBuff, MouseEventArgs e)
@@ -210,7 +227,7 @@ namespace GSK_99
                 if (AddVertexFromSecondFigure(figure, t)
                     || AddVertexFromSecondFigure(t, figure))
                 {
-                    if (t.Index != figure.Index) continue;
+                    if (figure.Equals(t)) continue;
                     figuresB.Add(t);
                 }
 
@@ -291,6 +308,10 @@ namespace GSK_99
 
         private void CreateCubeSpline()
         {
+            var color = _figure.DrawPen.Color;
+            _figure.DrawPen.Color = Color.White;
+            _figure.Fill();
+            _figure.DrawPen.Color = color;
             var function = new List<Vertex>();
             var l = new PointF[4];
             var pv1 = _figure.Vertices[0].ToPoint();
@@ -348,6 +369,7 @@ namespace GSK_99
 
         private void CreateFg4()
         {
+            _graphics.DrawLine(new Pen(Color.White), _figure.Vertices[0].ToPoint(), _figure.Vertices[1].ToPoint());
             var a = _figure.Vertices[0];
             var b = _figure.Vertices[1];
             var width = (b.X + a.X) / 2;
@@ -378,6 +400,8 @@ namespace GSK_99
         }
 
         private void DeleteFigure__Click(object sender, EventArgs e) => _operation = -3;
+
+        #region ТМО
 
         // Алгоритм теоретико-множественных операций
         private void Tmo(Figure figure1, Figure figure2)
@@ -514,5 +538,7 @@ namespace GSK_99
                     break;
             }
         }
+
+        #endregion
     }
 }
